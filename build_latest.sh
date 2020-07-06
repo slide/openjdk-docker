@@ -281,8 +281,10 @@ echo >> "${push_cmdfile}"
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-slim
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly-slim
+echo "oses=${oses}"
 for os in ${oses}
 do
+	echo "Current os=${os}"
 	# Build = Release or Nightly
 	builds=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Build:")
 	# Type = Full or Slim
