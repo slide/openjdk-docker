@@ -31,9 +31,20 @@ jobs:
       - name: Build - Windows
         if: matrix.os == 'windows-2019' || matrix.os == 'windows-2016'
         run: |
+          # add msys2 to the path so the correct exes are used
           $env:PATH="C:\msys64\usr\bin;${env:PATH}"
-          C:\msys64\usr\bin\bash -c "ls -la ; ./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}"
+          C:\msys64\usr\bin\bash -c "./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}"
+        env:
+          BUILD_VERSION: ${{ matrix.version }}
+          BUILD_OS: ${{ matrix.os }}
+          BUILD_VM: ${{ matrix.vm }}
+          BUILD_PACKAGE: ${{ matrix.package }}
 
       - name: Build - Linux
         if: matrix.os == 'ubuntu-18.04'
         run: bash build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}
+        env:
+          BUILD_VERSION: ${{ matrix.version }}
+          BUILD_OS: ${{ matrix.os }}
+          BUILD_VM: ${{ matrix.vm }}
+          BUILD_PACKAGE: ${{ matrix.package }}
