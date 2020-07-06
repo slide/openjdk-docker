@@ -215,7 +215,7 @@ function build_image() {
 
 	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
 	echo "#####################################################"
-	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
+	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ${extra_args} ."
 	echo "#####################################################"
 	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
 	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" ${extra_args} . ; then
