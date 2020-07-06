@@ -30,7 +30,7 @@ jobs:
 
       - name: Build - Windows
         if: matrix.os == 'windows-2019' || matrix.os == 'windows-2016'
-        run: C:\msys64\usr\bin\bash -c "pwd ; ls -la ; ./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}"
+        run: C:\msys64\usr\bin\bash -c "ls -la ; ./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}"
 
       - name: Build - Linux
         if: matrix.os == 'ubuntu-18.04'
