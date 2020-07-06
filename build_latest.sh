@@ -193,7 +193,6 @@ function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
 	btype=$1; shift;
-	local extra_args=""
 
 	tags=""
 	for tag in "$@"
@@ -209,16 +208,12 @@ function build_image() {
 		return;
 	fi
 	
-	if [[ "${os}" == windows* ]]; then
-	    extra_args="--isolation=hyperv"
-	fi
-
 	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
 	echo "#####################################################"
-	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ${extra_args} ."
+	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
 	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" ${extra_args} . ; then
+	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
 		echo "#############################################"
 		echo
 		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
