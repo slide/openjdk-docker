@@ -15,10 +15,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019, windows-2016, ubuntu-18.04]
+        #os: [windows-2019, windows-2016, ubuntu-18.04]
+        os: [ubuntu-18.04]
         version: [8, 11, 14]
+        #version: [8]
         vm: [hotspot, openj9]
+        #vm: [hotspot]
         package: [jdk, jre]
+        #package: [jdk]
 
     steps:
       - name: Checkout
@@ -26,7 +30,7 @@ jobs:
 
       - name: Build - Windows
         if: matrix.os == 'windows-2019' || matrix.os == 'windows-2016'
-        run: C:\msys64\usr\bin\bash $GITHUB_WORKSPACE/build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}
+        run: C:\msys64\usr\bin\bash build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}
 
       - name: Build - Linux
         if: matrix.os == 'ubuntu-18.04'
