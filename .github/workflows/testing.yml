@@ -25,4 +25,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Build docker image
-        run: docker build -t testing -f 11/jdk/windows/nanoserver-20h2/Dockerfile.hotspot.nightly.full .
+        run: docker build --isolation=hyperv -t testing -f 11/jdk/windows/nanoserver-20h2/Dockerfile.hotspot.nightly.full .
