@@ -1,0 +1,48 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM mcr.microsoft.com/windows/nanoserver:1809
+
+COPY sha256sum.exe C:/Windows/System32
+
+ENV JAVA_VERSION jdk8u262-b10
+
+USER ContainerAdministrator
+RUN echo Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u262-b10/OpenJDK8U-jdk_x64_windows_hotspot_8u262b10.zip ... & \
+    curl.exe -L https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u262-b10/OpenJDK8U-jdk_x64_windows_hotspot_8u262b10.zip -o openjdk.zip
+
+RUN echo Verifying sha256 (7741410c195cdc5eb46410a453dd1446c97ab0c693cbd2543bf7d6ed9f7bf302) ... & \
+    sha256sum.exe openjdk.zip
+    #  & \
+    # for /f %f IN ('sha256sum.exe openjdk.zip') DO ( SET SHA256=%f ) & \
+    # echo SHA256 = %SHA256% 
+    # & \
+    # if NOT "%SHA256%"=="7741410c195cdc5eb46410a453dd1446c97ab0c693cbd2543bf7d6ed9f7bf302" ( echo 'FAILED!' & exit 1 ) & \
+    # echo 'Expanding Zip ...' & \
+    # tar -xf openjdk.zip -C C:\\ & \
+    # for /f \"tokens=*\" %f IN ('dir /b jdk*') do set JDK_DIRECTORY=%f & \
+    # move /y %JDK_DIRECTORY% C:\openjdk-8 & \
+    # echo Removing openjdk.zip ... & \
+    # del /f /q openjdk.zip
+
+USER ContainerUser
+ENV JAVA_HOME=C:\\openjdk-8 \
+    ProgramFiles="C:\\Program Files" \
+    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
+ENV PATH="${WindowsPATH};${JAVA_HOME}\\bin"

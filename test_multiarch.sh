@@ -15,7 +15,7 @@
 set -o pipefail
 
 export root_dir="$PWD"
-source_prefix="adoptopenjdk"
+source_prefix="${DOCKERHUB_REPO:-adoptopenjdk}"
 source_repo="openjdk"
 version="9"
 tag_aliases=""

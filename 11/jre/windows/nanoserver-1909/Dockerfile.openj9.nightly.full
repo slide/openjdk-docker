@@ -17,34 +17,42 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/windows/nanoserver:1909
-
+FROM mcr.microsoft.com/windows/servercore:1909 as installer
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk11u
 
-USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_x64_windows_openj9_2020-10-23-08-51.zip ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_x64_windows_openj9_2020-10-23-08-51.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (d2b342b08af731dac1420efeff3713be2508d5e1574bf0d4b959addebc5a3ac7) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'd2b342b08af731dac1420efeff3713be2508d5e1574bf0d4b959addebc5a3ac7') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-11-20-10-54/OpenJDK11U-jre_x64_windows_openj9_2020-11-20-10-54.zip ...'); \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-11-20-10-54/OpenJDK11U-jre_x64_windows_openj9_2020-11-20-10-54.zip ; \
+    Write-Host ('Verifying sha256 (df51b1ec97c2fcfeb44fe15fa9a65c525e96a7ab48768906e9ffe5fbc7282124) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'df51b1ec97c2fcfeb44fe15fa9a65c525e96a7ab48768906e9ffe5fbc7282124') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
     \
     Write-Host 'Expanding Zip ...'; \
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
     Move-Item -Path $jdkDirectory C:\openjdk-11; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
+# switch to the actual container that we want to run as after using
+# servercore to "install" java.
+FROM mcr.microsoft.com/windows/nanoserver:1909
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\openjdk-11" & \
+    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
+
+COPY --from=installer ["/openjdk-11", "/openjdk-11"]
+
 USER ContainerUser
 ENV JAVA_HOME=C:\\openjdk-11 \
     ProgramFiles="C:\\Program Files" \
     WindowsPATH="C:\\Windows\\system32;C:\\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
+ENV PATH="${WindowsPATH};${JAVA_HOME}\\bin"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
